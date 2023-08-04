@@ -1,6 +1,6 @@
 import { HomePage } from "./pages/HomePage"
 
-const App =()=>{
+const App = ()=>{
   return (
     <>
       <HomePage />

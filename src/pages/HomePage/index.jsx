@@ -14,13 +14,15 @@ export const HomePage = () => {
   const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
-    setCartList(JSON.parse(localStorage.getItem("buyProducts")));
+    const localStorageProducts = JSON.parse(localStorage.getItem("buyProducts")) || []
+    setCartList(localStorageProducts);
     const apiHamburguer = async () => {
       const { data } = await hamburguer.get("products");
       setProductList(data);
     };
     apiHamburguer();
   }, []);
+
   useEffect(() => {
     const handle = async () => {
       if (search.length === 0) {
@@ -46,8 +48,7 @@ export const HomePage = () => {
 
   useEffect(() => {
     cartList.length !== 0
-      ? localStorage.setItem("buyProducts", JSON.stringify(cartList))
-      : null;
+      && localStorage.setItem("buyProducts", JSON.stringify(cartList))
   }, [cartList]);
 
   const deleteCard = (id) => {
@@ -80,7 +81,7 @@ export const HomePage = () => {
     });
     setSearch(mySearch);
   };
-
+  
   return (
     <>
   
@@ -93,13 +94,13 @@ export const HomePage = () => {
         />
       <main className={`${"container"} ${style.main__modal}`}>
         <ProductList productList={productList} addCart={addCartHome} />
-        {openModal ? (
+        { openModal  &&(
           <CartModal
           cartList={cartList}
           deleteCard={deleteCard}
           setOpenModal={setOpenModal}
           />
-          ) : null}
+          )}
       </main>
       
     </>
