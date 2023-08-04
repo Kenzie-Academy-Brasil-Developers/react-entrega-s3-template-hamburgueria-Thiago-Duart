@@ -1,26 +1,107 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CartModal } from "../../components/CartModal";
 import { Header } from "../../components/Header";
 import { ProductList } from "../../components/ProductList";
+import { hamburguer } from "../../services/service";
+import { v4 as uuidv4 } from "uuid";
+import style from "./style.module.sass";
 
 export const HomePage = () => {
-   const [productList, setProductList] = useState([]);
-   const [cartList, setCartList] = useState([]);
+  const [productList, setProductList] = useState([]);
+  const [cartList, setCartList] = useState([]);
+  const [search, setSearch] = useState([]);
+  const [value, setValue] = useState("");
+  const [openModal, setOpenModal] = useState(false);
 
-   // useEffect montagem - carrega os produtos da API e joga em productList
-   // useEffect atualização - salva os produtos no localStorage (carregar no estado)
-   // adição, exclusão, e exclusão geral do carrinho
-   // renderizações condições e o estado para exibir ou não o carrinho
-   // filtro de busca
-   // estilizar tudo com sass de forma responsiva
+  useEffect(() => {
+    setCartList(JSON.parse(localStorage.getItem("buyProducts")));
+    const apiHamburguer = async () => {
+      const { data } = await hamburguer.get("products");
+      setProductList(data);
+    };
+    apiHamburguer();
+  }, []);
+  useEffect(() => {
+    const handle = async () => {
+      if (search.length === 0) {
+        const { data } = await hamburguer.get("products");
+        setProductList(data);
+      } else {
+        setProductList(search);
+      }
+    };
+    handle();
+  }, [search]);
 
-   return (
-      <>
-         <Header />
-         <main>
-            <ProductList productList={productList} />
-            <CartModal cartList={cartList} />
-         </main>
-      </>
-   );
+  const addCartHome = ({ id }) => {
+    const products = productList.filter((product) => product.id === id);
+    const newProducts = products.map((product) => {
+      return {
+        ...product,
+        id: uuidv4(),
+      };
+    });
+    setCartList([...cartList, newProducts[0]]);
+  };
+
+  useEffect(() => {
+    cartList.length !== 0
+      ? localStorage.setItem("buyProducts", JSON.stringify(cartList))
+      : null;
+  }, [cartList]);
+
+  const deleteCard = (id) => {
+    const products = JSON.parse(localStorage.getItem("buyProducts"));
+    const removeProducts = products.filter((product, indice) => {
+      if (typeof id == "string") {
+        return product.id !== id;
+      } else {
+        return product.id !== id[indice];
+      }
+    });
+    localStorage.setItem("buyProducts", JSON.stringify(removeProducts));
+    setCartList(removeProducts);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const mySearch = productList.filter((product) => {
+      const configString = (string) => {
+        return string
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toUpperCase();
+      };
+      const name = configString(product.name) === configString(value);
+      const category = configString(product.category) === configString(value);
+      if (name || category) {
+        return product;
+      }
+    });
+    setSearch(mySearch);
+  };
+
+  return (
+    <>
+  
+      <Header
+        handleSubmit={handleSubmit}
+        setValue={setValue}
+        value={value}
+        setOpenModal={setOpenModal}
+        cartList={cartList}
+        />
+      <main className={`${"container"} ${style.main__modal}`}>
+        <ProductList productList={productList} addCart={addCartHome} />
+        {openModal ? (
+          <CartModal
+          cartList={cartList}
+          deleteCard={deleteCard}
+          setOpenModal={setOpenModal}
+          />
+          ) : null}
+      </main>
+      
+    </>
+  );
 };

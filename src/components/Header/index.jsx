@@ -1,29 +1,39 @@
-import { useState } from "react";
 import Logo from "../../assets/Logo.svg";
 import { MdSearch, MdShoppingCart } from "react-icons/md";
-
-export const Header = () => {
-   const [value, setValue] = useState("");
-
-   return (
-      <header>
-         <img src={Logo} alt="Logo Kenzie Burguer" />
-         <div>
-            <button>
-                <MdShoppingCart size={21} />
-                <span>0</span>
+import style from "./style.module.sass";
+export const Header = ({
+  handleSubmit,
+  setValue,
+  value,
+  setOpenModal,
+  cartList,
+}) => {
+  return (
+    <header className={style.headerColor}>
+      <div className={`${style.header} ${"container"}`}>
+        <div className={style.header__container}>
+          <div className={style.handle}>
+            <img src={Logo} alt="Logo Kenzie Burguer" />
+            <button onClick={() => setOpenModal(true)} className={style.cart}>
+              <MdShoppingCart size={26} className={style.color} />
+              <span>{cartList.length}</span>
             </button>
-            <form>
-               <input
-                  type="text"
-                  value={value}
-                  onChange={(e) => setValue(e.target.value)}
-               />
-               <button type="submit">
-                 <MdSearch size={21} />
-               </button>
-            </form>
-         </div>
-      </header>
-   );
+          </div>
+          <form onSubmit={handleSubmit}>
+            <div className="handle_input">
+              <input
+                type="text"
+                name="pesquisa"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+              />
+              <button type="submit" className={style.search}>
+                <MdSearch size={21} />
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </header>
+  );
 };
