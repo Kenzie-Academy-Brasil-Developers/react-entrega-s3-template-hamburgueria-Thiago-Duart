@@ -1,3 +1,4 @@
+import style from "./style.module.sass"
 export const ProductCard = ({ product,addCart }) => {
     return(
         <li className="card__container">

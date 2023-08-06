@@ -14,7 +14,8 @@ export const HomePage = () => {
   const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
-    const localStorageProducts = JSON.parse(localStorage.getItem("buyProducts")) || []
+    const localStorageProducts =
+      JSON.parse(localStorage.getItem("buyProducts")) || [];
     setCartList(localStorageProducts);
     const apiHamburguer = async () => {
       const { data } = await hamburguer.get("products");
@@ -47,8 +48,8 @@ export const HomePage = () => {
   };
 
   useEffect(() => {
-    cartList.length !== 0
-      && localStorage.setItem("buyProducts", JSON.stringify(cartList))
+    cartList.length !== 0 &&
+      localStorage.setItem("buyProducts", JSON.stringify(cartList));
   }, [cartList]);
 
   const deleteCard = (id) => {
@@ -81,28 +82,35 @@ export const HomePage = () => {
     });
     setSearch(mySearch);
   };
-  
+useEffect(()=>{
+ const closeModal = (e)=>{
+  if(e.key === 'Escape'){
+    setOpenModal(false)
+  }
+}
+  window.addEventListener('keydown', closeModal)
+  return () => window.removeEventListener('keydown',closeModal)
+},[])
+
   return (
     <>
-  
       <Header
         handleSubmit={handleSubmit}
         setValue={setValue}
         value={value}
         setOpenModal={setOpenModal}
         cartList={cartList}
-        />
+      />
       <main className={`${"container"} ${style.main__modal}`}>
         <ProductList productList={productList} addCart={addCartHome} />
-        { openModal  &&(
+        {openModal && (
           <CartModal
-          cartList={cartList}
-          deleteCard={deleteCard}
-          setOpenModal={setOpenModal}
+            cartList={cartList}
+            deleteCard={deleteCard}
+            setOpenModal={setOpenModal}
           />
-          )}
+        )}
       </main>
-      
     </>
   );
 };
